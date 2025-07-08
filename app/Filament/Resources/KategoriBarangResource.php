@@ -9,18 +9,24 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth; // untuk akses user login
 
 class KategoriBarangResource extends Resource
 {
     protected static ?string $model = KategoriBarang::class;
 
     protected static ?string $navigationGroup = 'Manajemen Checklist';
-
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationLabel = 'Kategori Barang';
     protected static ?string $pluralModelLabel = 'Kategori Barang';
     protected static ?string $modelLabel = 'Kategori';
     protected static ?int $navigationSort = 1;
+
+    // ✅ Hanya tampil jika bukan admin
+    public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role !== 'admin';
+    }
 
     public static function form(Form $form): Form
     {
@@ -33,7 +39,7 @@ class KategoriBarangResource extends Resource
             Forms\Components\Textarea::make('deskripsi')
                 ->label('Deskripsi')
                 ->rows(4)
-                ->maxLength(65535), // text default max
+                ->maxLength(65535),
         ]);
     }
 
@@ -58,7 +64,7 @@ class KategoriBarangResource extends Resource
         ->filters([])
         ->actions([
             Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(), // Tambahkan agar bisa hapus individual
+            Tables\Actions\DeleteAction::make(),
         ])
         ->bulkActions([
             Tables\Actions\BulkActionGroup::make([

@@ -10,18 +10,24 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Facades\Auth; // ✅ Tambahan
 
 class BarangChecklistResource extends Resource
 {
     protected static ?string $model = BarangChecklist::class;
 
     protected static ?string $navigationGroup = 'Manajemen Checklist';
-
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationLabel = 'Barang Checklist';
     protected static ?string $pluralModelLabel = 'Barang Checklist';
     protected static ?string $modelLabel = 'Barang';
     protected static ?int $navigationSort = 2;
+
+    // ✅ Sembunyikan dari admin
+    public static function canAccess(): bool
+    {
+        return Auth::check() && Auth::user()->role !== 'admin';
+    }
 
     public static function form(Form $form): Form
     {
@@ -65,14 +71,14 @@ class BarangChecklistResource extends Resource
     {
         return $table->columns([
             ImageColumn::make('foto')
-                    ->label('Foto')
-                    ->getStateUsing(fn($record) => $record->foto
-                        ? asset('storage/' . $record->foto)
-                        : null)
-                    ->circular()
-                    ->height(60)
-                    ->width(60)
-                    ->extraImgAttributes(['style' => 'object-fit: cover']),
+                ->label('Foto')
+                ->getStateUsing(fn ($record) => $record->foto
+                    ? asset('storage/' . $record->foto)
+                    : null)
+                ->circular()
+                ->height(60)
+                ->width(60)
+                ->extraImgAttributes(['style' => 'object-fit: cover']),
 
             Tables\Columns\TextColumn::make('nama_barang')
                 ->label('Nama Barang')
